@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bank-of-anthos-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bank-of-anthos-agent
+  template:
+    metadata:
+      labels:
+        app: bank-of-anthos-agent
+    spec:
+      containers:
+        - name: agent
+          image: us-central1-docker.pkg.dev/gcpdevelopment-464720/bank-of-anthos-agent/financial-agent:v6
+          ports:
+            - containerPort: 8080
+          env:
+            - name: GOOGLE_GENAI_USE_VERTEXAI
+              value: "FALSE"
+            - name: GOOGLE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: gemini-api-key
+                  key: api_key
+            - name: BALANCES_API_ADDR
+              value: "balancereader:8080"
+            - name: HISTORY_API_ADDR
+              value: "transactionhistory:8080"
